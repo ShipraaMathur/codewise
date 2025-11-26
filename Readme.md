@@ -22,3 +22,13 @@ Test Github connection:
 python github_test.py
 
 ```
+
+Build code embeddings
+```
+python scripts/build_vectorstore.py
+```
+
+Build PR comment embeddings
+ ```
+python scripts/build_pr_comments_store.py
+```
