@@ -1,2 +1,5 @@
 PyGithub
 python-dotenv
+faiss-cpu
+langchain
+langchain-openai
