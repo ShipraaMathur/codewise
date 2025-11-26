@@ -29,6 +29,11 @@ python scripts/build_vectorstore.py
 ```
 
 Build PR comment embeddings
- ```
+```
 python scripts/build_pr_comments_store.py
+```
+
+Run the retrieval pipeline for a given PR
+```
+python scripts/retrieval_pipeline.py
 ```
