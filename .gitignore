@@ -1,6 +1,9 @@
 .env
+.venv/
+__pycache__/
 vectorstores/
 data/
 pr_retrieval_output.json
 __pycache__/
 scripts/__pycache__/
+**/__init__.py
