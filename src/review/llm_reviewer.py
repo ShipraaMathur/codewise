@@ -30,12 +30,13 @@ class ReviewComment(BaseModel):
 class Review(BaseModel):
     review_comments: list[ReviewComment] = Field(description="A list of review comments.", min_length=1)
 
-def get_review_for_code(source_code: str) -> dict | None:
+def get_review_for_code(source_code: str, temperature: float = 0.2) -> dict | None:
     """
     Generates AI-powered code review for a given source code snippet.
 
     Args:
         source_code (str): The source code of the function/class to review.
+        temperature (float): The temperature setting for the LLM.
 
     Returns:
         A dictionary containing the structured review comments, or None if no issues are found.
@@ -50,7 +51,7 @@ def get_review_for_code(source_code: str) -> dict | None:
             partial_variables={"format_instructions": parser.get_format_instructions()},
         )
 
-        model = ChatOpenAI(model="gpt-4o", temperature=0.2)
+        model = ChatOpenAI(model="gpt-4o", temperature=temperature)
 
         chain = prompt | model | parser
         
