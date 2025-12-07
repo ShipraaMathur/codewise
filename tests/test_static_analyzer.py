@@ -13,27 +13,27 @@ class TestStaticAnalyzer(unittest.TestCase):
         # 1. Define a sample original file content
         # This represents the NEW state of the file, after the patch is applied.
         new_file_content = """
-def hello_world():
-    print("Hello, world!")
+                def hello_world():
+                    print("Hello, world!")
 
-def goodbye(name):
-    print(f"Goodbye, {name}!")
-    print("See you later!")
+                def goodbye(name):
+                    print(f"Goodbye, {name}!")
+                    print("See you later!")
 
-class MyClass:
-    def method(self):
-        return 1
-"""
+                class MyClass:
+                    def method(self):
+                        return 1
+            """
 
         # 2. Define a sample patch that modifies the 'goodbye' function
         # This patch corresponds to the change in new_file_content
         patch_text = """
-@@ -4,3 +4,4 @@
- 
- def goodbye(name):
-     print(f"Goodbye, {name}!")
-+    print("See you later!")
-"""
+            @@ -4,3 +4,4 @@
+            
+            def goodbye(name):
+                print(f"Goodbye, {name}!")
+            +    print("See you later!")
+        """
 
         # 3. Call the function you want to test
         affected_nodes = analyze_file_changes(new_file_content, patch_text)
