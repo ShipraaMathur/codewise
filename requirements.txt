@@ -1,6 +1,6 @@
 PyGithub
 python-dotenv
-faiss-cpu
+faiss-cpu==1.13.1
 langchain
 langchain-openai
 GitPython
@@ -10,3 +10,4 @@ openai
 pydantic
 pandas
 matplotlib
+numpy
