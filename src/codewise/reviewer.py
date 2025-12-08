@@ -3,6 +3,7 @@
 from codewise.logger import get_logger
 from codewise.review.llm_reviewer import get_review_for_code
 from codewise.core.static_analyzer import analyze_file_changes
+from codewise.retrieval.retriever_client import get_retrieval_context
 
 logger = get_logger(__name__)
 
