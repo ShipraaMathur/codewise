@@ -4,6 +4,9 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Ensure the OPENAI_API_KEY is loaded from .env
 if not os.getenv("OPENAI_API_KEY"):
