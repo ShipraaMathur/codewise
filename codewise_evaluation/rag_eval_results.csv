@@ -1,0 +1,4 @@
+pr_id,baseline_count,baseline_mean_score,baseline_max_score,rag_count,rag_mean_score,rag_max_score,ground_truth_count
+1,2,0.0,0.0,1,0.0,0.0,3
+2,2,0.0,0.0,15,0.3111,0.3333,3
+3,2,0.0,0.0,10,0.0,0.0,2
