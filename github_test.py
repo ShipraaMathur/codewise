@@ -65,3 +65,45 @@ for file in pr.get_files():
     except Exception as e:
         print(f"  Could not analyze file {file.filename}: {e}")
         continue
+
+
+def parse_patch(patch_text):
+    """
+    Parses a patch file and yields the line number and content of added lines.
+    """
+    if not patch_text:
+        return
+
+    file_line_number = 0
+    for line in patch_text.split('\n'):
+        if line.startswith('@@'):
+            # Extract the starting line number for the new file from the hunk header
+            # e.g., @@ -30,7 +30,9 @@
+            parts = line.split(' ')
+            if len(parts) > 2 and parts[2].startswith('+'):
+                try:
+                    file_line_number = int(parts[2].split(',')[0][1:])
+                except (ValueError, IndexError):
+                    # If parsing fails, it might be a file creation; line number is 1
+                    file_line_number = 1
+        elif line.startswith('+') and not line.startswith('+++'):
+            # This is an added line
+            yield (file_line_number, line[1:])
+            file_line_number += 1
+        elif not line.startswith('-'):
+            # This is a context line or a hunk header, increment line number
+            file_line_number += 1
+
+def find_enclosing_node(tree, line_number):
+    """
+    Finds the function or class that encloses a given line number by walking the AST.
+    """
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            start_line = node.lineno
+            # Use end_lineno if available (Python 3.8+), otherwise it's less accurate
+            end_line = getattr(node, 'end_lineno', start_line)
+
+            if start_line <= line_number <= end_line:
+                return node.name
+    return None # No enclosing function/class found
