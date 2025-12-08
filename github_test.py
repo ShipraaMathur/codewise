@@ -2,6 +2,8 @@ import os
 import json
 import sys
 from dotenv import load_dotenv
+import ast
+from github import Github, Auth
 
 # Load environment variables from .env file BEFORE other imports
 load_dotenv()
