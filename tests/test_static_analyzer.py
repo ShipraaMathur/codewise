@@ -5,7 +5,7 @@ import os
 # Add the 'src' directory to the Python path to allow imports
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.core.static_analyzer import analyze_file_changes
+from src.codewise.core.static_analyzer import analyze_file_changes
 
 class TestStaticAnalyzer(unittest.TestCase):
 
