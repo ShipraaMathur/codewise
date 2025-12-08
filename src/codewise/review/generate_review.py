@@ -12,8 +12,8 @@ load_dotenv()
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from github import Github, Auth
-from src.core.static_analyzer import analyze_file_changes
-from src.review.llm_reviewer import get_review_for_code
+from src.codewise.core.static_analyzer import analyze_file_changes
+from src.codewise.review.llm_reviewer import get_review_for_code
 
 def parse_pr_url(pr_url: str) -> tuple[str, int]:
     """Parses a GitHub PR URL to get the repo name and PR number."""
