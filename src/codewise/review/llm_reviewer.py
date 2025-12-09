@@ -30,7 +30,13 @@ Relevant Project Context (retrieved from vectorstore):
 ---
 
 {format_instructions}
+
+IMPORTANT:
+- Only return valid JSON that exactly matches the required schema.
+- Do NOT add explanations outside the JSON.
+- Only use line numbers relative to the snippet (not original file).
 """
+
 
 # Define the desired data structure for the JSON output.
 class ReviewComment(BaseModel):
@@ -71,8 +77,15 @@ def get_review_for_code(source_code: str, retrieved_context: str = "", temperatu
         model = ChatOpenAI(model="gpt-4o", temperature=temperature)
 
         chain = prompt | model | parser
+
+        result = chain.invoke({
+            "source_code": source_code, 
+            "retrieved_context": retrieved_context, 
+            "tone": tone, 
+            "verbosity": verbosity
+        })
         
-        return chain.invoke({"source_code": source_code, "retrieved_context": retrieved_context, "tone": tone, "verbosity": verbosity})
+        return result
     except Exception as e:
         # If the LLM says there are no issues, it might return a non-JSON response.
         # Or if another error occurs.
