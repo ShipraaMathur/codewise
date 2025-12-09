@@ -1,7 +1,7 @@
 .env
 .venv/
 __pycache__/
-
+src/logs/
 data/
 pr_retrieval_output.json
 __pycache__/

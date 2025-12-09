@@ -15,6 +15,8 @@ from github import Github, Auth
 from codewise.core.static_analyzer import analyze_file_changes
 from codewise.review.llm_reviewer import get_review_for_code
 from codewise.retriever.retriever_client import get_retrieval_context
+from codewise.review.feedback_logger import FeedbackLogger
+
 
 def parse_pr_url(pr_url: str) -> tuple[str, int]:
     """Parses a GitHub PR URL to get the repo name and PR number."""
@@ -48,6 +50,7 @@ def main():
     g = Github(auth=Auth.Token(token))
     repo = g.get_repo(repo_name)
     pr = repo.get_pull(pr_number)
+    feedback_logger = FeedbackLogger()
 
     # --- Review Generation ---
     full_review = {"pr_title": pr.title, "files": []}
@@ -68,7 +71,12 @@ def main():
 
                 review = get_review_for_code(source_code, retrieved_context=retrieval_context, temperature=args.temperature) # This was already correct, but depends on the change below
                 if review:
+                    if isinstance(review, dict):
+                        review_str = json.dumps(review)
+                    else:
+                        review_str = str(review)
                     file_review["reviews"].append({"node": node_name, "review": review})
+                    feedback_logger.add_feedback(pr_number=pr_number, file_name=file.filename,node_name=node_name,review_text=review_str)
             
             if file_review["reviews"]:
                 full_review["files"].append(file_review)
@@ -78,6 +86,7 @@ def main():
 
     # Print the final combined review as a single JSON string
     print(json.dumps(full_review, indent=2))
+    feedback_logger.save_json()
 
 if __name__ == "__main__":
     main()
