@@ -67,18 +67,39 @@ def main():
 
             file_review = {"filename": file.filename, "reviews": []}
 
-            for node_name, source_code in affected_nodes.items():
+            for node_name, node_data in affected_nodes.items():
+                source_code = node_data["source_code"]
+                added_lines = node_data.get("added_lines", [])
+                
                 retrieval_context = get_retrieval_context(source_code)
 
-                review = get_review_for_code(source_code, retrieved_context=retrieval_context, temperature=args.temperature,adaptation_params=adaptation_params) # This was already correct, but depends on the change below
+                review = get_review_for_code(
+                    source_code,
+                    retrieved_context=retrieval_context,
+                    temperature=args.temperature,
+                    adaptation_params=adaptation_params
+                )
+
                 if review:
                     if isinstance(review, dict):
                         review_str = json.dumps(review)
                     else:
                         review_str = str(review)
-                    file_review["reviews"].append({"node": node_name, "review": review})
-                    feedback_logger.add_feedback(pr_number=pr_number, file_name=file.filename,node_name=node_name,review_text=review_str)
-            
+                    # Default line number = None if no added lines exist
+                    line_number = added_lines[0][0] if added_lines else None
+
+                    file_review["reviews"].append({
+                        "node": node_name,
+                        "review": review,
+                        "file_path": file.filename,
+                        "line_number": line_number
+                    })
+                    feedback_logger.add_feedback(
+                        pr_number=pr_number,
+                        file_name=file.filename,
+                        node_name=node_name,
+                        review_text=review_str
+                    )
             if file_review["reviews"]:
                 full_review["files"].append(file_review)
 
