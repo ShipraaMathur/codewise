@@ -16,6 +16,9 @@ PROMPT_TEMPLATE = """
 You are an expert Python code reviewer. Your role is to analyze the provided code snippet for bugs,
 style violations (PEP 8), and potential improvements. Provide your feedback in the requested JSON format.
 
+Tone: {tone}
+Verbosity: {verbosity}
+
 Here is the code snippet to review:
 ---
 {source_code}
@@ -38,7 +41,7 @@ class ReviewComment(BaseModel):
 class Review(BaseModel):
     review_comments: list[ReviewComment] = Field(description="A list of review comments.", min_length=1)
 
-def get_review_for_code(source_code: str, retrieved_context: str = "", temperature: float = 0.2) -> dict | None:
+def get_review_for_code(source_code: str, retrieved_context: str = "", temperature: float = 0.2, adaptation_params: dict | None = None) -> dict | None:
     """
     Generates AI-powered code review for a given source code snippet.
 
@@ -51,11 +54,17 @@ def get_review_for_code(source_code: str, retrieved_context: str = "", temperatu
     """
     try:
         # Set up a parser + inject instructions into the prompt template.
+                # Default adaptation if none provided
+        if adaptation_params is None:
+            adaptation_params = {"tone": "neutral", "verbosity": "medium"}
+
+        tone = adaptation_params.get("tone", "neutral")
+        verbosity = adaptation_params.get("verbosity", "medium")
         parser = JsonOutputParser(pydantic_object=Review)
 
         prompt = PromptTemplate(
             template=PROMPT_TEMPLATE,
-            input_variables=["source_code","retrieved_context"],
+            input_variables=["source_code","retrieved_context","tone","verbosity"],
             partial_variables={"format_instructions": parser.get_format_instructions()},
         )
 
@@ -63,7 +72,7 @@ def get_review_for_code(source_code: str, retrieved_context: str = "", temperatu
 
         chain = prompt | model | parser
         
-        return chain.invoke({"source_code": source_code, "retrieved_context": retrieved_context})
+        return chain.invoke({"source_code": source_code, "retrieved_context": retrieved_context, "tone": tone, "verbosity": verbosity})
     except Exception as e:
         # If the LLM says there are no issues, it might return a non-JSON response.
         # Or if another error occurs.
