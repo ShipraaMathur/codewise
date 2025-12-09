@@ -3,6 +3,7 @@
 from codewise.logger import get_logger
 from codewise.review.llm_reviewer import get_review_for_code
 from codewise.core.static_analyzer import analyze_file_changes
+from codewise.retriever.retriever_client import get_retrieval_context
 
 logger = get_logger(__name__)
 
@@ -30,7 +31,8 @@ class Reviewer:
         if not diff.strip():
             logger.info("No diff provided, skipping review.")
             return ["No changes detected."]
-
+        context_dict = get_retrieval_context(source_code)
+        retrieved_context = combine_context(context_dict)
         review_dict = get_review_for_code(diff)
         comments = []
 
