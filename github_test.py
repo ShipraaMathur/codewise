@@ -50,7 +50,8 @@ for file in pr.get_files():
         affected_nodes = analyze_file_changes(file_content, patch_text)
 
         # 3. Print the results
-        for node_name, source_code in affected_nodes.items():
+        for node_name, node_info in affected_nodes.items():
+            source_code = node_info["source_code"]
             print(f"  Affected node '{node_name}':")
             print("    --- Source Code ---")
             # Indent source code for better readability
