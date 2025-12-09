@@ -38,7 +38,7 @@ class ReviewComment(BaseModel):
 class Review(BaseModel):
     review_comments: list[ReviewComment] = Field(description="A list of review comments.", min_length=1)
 
-def get_review_for_code(source_code: str, retrieved_context: str, temperature: float = 0.2) -> dict | None:
+def get_review_for_code(source_code: str, retrieved_context: str = "", temperature: float = 0.2) -> dict | None:
     """
     Generates AI-powered code review for a given source code snippet.
 

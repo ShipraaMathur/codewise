@@ -53,3 +53,8 @@ python tests/visualize_results.py tests/{CSV_File}
 
 ```
 
+Test Rag Pipeline Promptchain Integration
+```
+python .\src\codewise\review\generate_review.py --pr-url https://github.com/pallets/flask/pull/5121
+
+```
