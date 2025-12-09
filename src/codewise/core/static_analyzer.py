@@ -73,6 +73,14 @@ def analyze_file_changes(file_content, patch_text):
         if node and node not in unique_node_objects:
             unique_node_objects.add(node)
             node_source = get_node_source(file_content, node)
-            affected_nodes[node.name] = node_source
+            affected_nodes[node.name] = {
+                "source_code": node_source,
+                "added_lines": [
+                    (line_num, text) 
+                    for line_num, text in added_lines
+                    if node.lineno <= line_num <= getattr(node, "end_lineno", node.lineno)
+                ]
+            }
+
             
     return affected_nodes
