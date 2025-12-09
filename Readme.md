@@ -72,3 +72,11 @@ To get evaluation
 python -m src.codewise.evaluation.run_eval --prs 5121 --owner-repo pallets/flask
 
 ```
+
+
+Run streamlit dashboard
+
+```
+streamlit run src/codewise/dashboard/app.py
+
+```
