@@ -15,11 +15,16 @@ except FileNotFoundError:
 
 # Evaluation metrics
 try:
-    with open("src/codewise/evaluation/evaluation_results/PR_5121.json") as f:
-        eval_metrics = json.load(f)
+    with open("src/codewise/evaluation/evaluation_results/per_pr_metrics.json") as f:
+        per_pr_metrics = json.load(f)
+        # Get the first PR's metrics (or find the matching PR if available)
+        if per_pr_metrics:
+            eval_metrics = per_pr_metrics[0]["metrics"]
+        else:
+            eval_metrics = {"rouge_l_avg": 0, "rouge_l_max": 0, "rouge_l_min": 0}
 except FileNotFoundError:
-    st.warning("Evaluation metrics not found for PR 5121")
-    eval_metrics = {"precision": 0, "recall": 0, "f1": 0}
+    st.warning("Evaluation metrics not found")
+    eval_metrics = {"rouge_l_avg": 0, "rouge_l_max": 0, "rouge_l_min": 0}
 
 # RAG retrieval context
 try:
@@ -44,10 +49,14 @@ if ai_feedback:
 # -------------------------------
 # Evaluation Metrics
 # -------------------------------
-st.subheader("Evaluation Metrics")
-st.metric("Precision", eval_metrics.get("precision", 0))
-st.metric("Recall", eval_metrics.get("recall", 0))
-st.metric("F1 Score", eval_metrics.get("f1", 0))
+st.subheader("RAG Evaluation Metrics (ROUGE-L)")
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.metric("Average ROUGE-L", f"{eval_metrics.get('rouge_l_avg', 0):.4f}")
+with col2:
+    st.metric("Max ROUGE-L", f"{eval_metrics.get('rouge_l_max', 0):.4f}")
+with col3:
+    st.metric("Min ROUGE-L", f"{eval_metrics.get('rouge_l_min', 0):.4f}")
 
 # Severity Distribution
 severity_counts = {}
