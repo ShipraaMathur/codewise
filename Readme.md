@@ -56,7 +56,7 @@ python tests/visualize_results.py tests/{CSV_File}
 Test Rag Pipeline Promptchain Integration
 
 ```
-python .\src\codewise\review\generate_review.py --pr-url https://github.com/pallets/flask/pull/5121
+python .\src\codewise\review\generate_review.py --pr-url https://github.com/pallets/flask/pull/5853
 
 ```
 Test Adjust future review tone/verbosity based on feedback
@@ -69,7 +69,7 @@ python src/codewise/review/test_adaptation.py
 To get evaluation
 
 ```
-python -m src.codewise.evaluation.run_eval --prs 5121 --owner-repo pallets/flask
+python -m src.codewise.evaluation.run_eval --prs 5853 --owner-repo pallets/flask
 
 ```
 

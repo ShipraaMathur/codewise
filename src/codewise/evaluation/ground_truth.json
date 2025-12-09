@@ -1,0 +1,22 @@
+{
+  "5853": [
+    {
+      "path": "src/flask/sessions.py",
+      "line": 88,
+      "body": "get_cookie_domain() should explicitly return None when config is not set",
+      "severity": "Low"
+    },
+    {
+      "path": "src/flask/sessions.py",
+      "line": 136,
+      "body": "delete_expired_sessions calculates count before removal - logic error",
+      "severity": "Medium"
+    },
+    {
+      "path": "src/flask/sessions.py",
+      "line": 139,
+      "body": "The condition with timezone.utc being None is always false",
+      "severity": "High"
+    }
+  ]
+}

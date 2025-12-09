@@ -3,21 +3,46 @@ import json
 from typing import List, Dict, Any
 from pathlib import Path
 
+try:
+    from rouge_score import rouge_scorer
+    ROUGE_AVAILABLE = True
+except ImportError:
+    ROUGE_AVAILABLE = False
+
 def score_comment_against_ground_truth(comment: str, ground_truth: List[str]) -> float:
     """
-    Simple heuristic scoring:
-      - Score = fraction of ground-truth keywords that appear in the comment (case-insensitive).
-    This is intentionally conservative and explainable; you can replace it with a learned metric
-    (BLEU-like, embedding similarity, or human annotation) if you have ground-truth labels.
+    RAG evaluation using ROUGE-L metric: measures longest common subsequence overlap
+    between AI-generated comment and ground-truth comments.
+    
+    Returns the best (max) ROUGE-L F-score when comparing the comment against
+    all ground-truth comments. This is suitable for semantic similarity in RAG tasks.
+    
+    Requires: pip install rouge-score
+    Fallback: if rouge-score not available, uses simple keyword matching.
     """
-    comment_lower = comment.lower()
     if not ground_truth:
         return 0.0
-    matched = 0
+    
+    if not ROUGE_AVAILABLE:
+        # Fallback to simple keyword matching if rouge-score not installed
+        comment_lower = comment.lower()
+        matched = 0
+        for gt in ground_truth:
+            if gt.lower() in comment_lower:
+                matched += 1
+        return matched / len(ground_truth)
+    
+    # Use ROUGE-L for semantic similarity
+    scorer = rouge_scorer.RougeScorer(['rougeL'], use_stemmer=True)
+    max_score = 0.0
+    
     for gt in ground_truth:
-        if gt.lower() in comment_lower:
-            matched += 1
-    return matched / len(ground_truth)
+        # Compute ROUGE-L F-score (balance between precision and recall)
+        scores = scorer.score(gt, comment)
+        rouge_l_fscore = scores['rougeL'].fmeasure
+        max_score = max(max_score, rouge_l_fscore)
+    
+    return max_score
 
 def evaluate_pair(baseline_comments: List[str], rag_comments: List[str], ground_truth_issues: List[str]) -> Dict[str, Any]:
     """

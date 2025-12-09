@@ -30,7 +30,7 @@ print("Connected to:", repo.full_name)
 
 # --- Main Logic ---
 # For development, we target a single, known PR.
-pr_number = 5121  # An example PR from Flask with Python file changes.
+pr_number = 5853  # An example PR from Flask with Python file changes.
 pr = repo.get_pull(pr_number)
 
 print(f"\nProcessing PR #{pr.number}: {pr.title}")
