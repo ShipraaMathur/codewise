@@ -86,12 +86,15 @@ for file in pr.get_files():
     for line_num, line_content in added_lines:
         node_name = find_enclosing_node(tree, line_num)
         if node_name:
-            affected_nodes.setdefault(node_name, []).append(f"+{line_num}: {line_content}")
+            affected_nodes.setdefault(node_name, []).append((line_num, line_content))
 
     # Retrieve context for each affected node
     for node_name, lines in affected_nodes.items():
-        modified_code = "\n".join(line.split(": ", 1)[1] for line in lines)
-        print(f"\n=== Node: {node_name} in {file.filename} ===\n")
+        # Keep line numbers with the code for evaluation
+        start_line = lines[0][0]
+        end_line = lines[-1][0]
+        modified_code = "\n".join(code for _, code in lines)
+        print(f"\n=== Node: {node_name} in {file.filename} (lines {start_line}-{end_line}) ===\n")
 
         code_matches, pr_comments = retrieve_context(modified_code, top_k=TOP_K)
 
@@ -101,7 +104,11 @@ for file in pr.get_files():
         for i, match in enumerate(code_matches, 1):
             snippet = match.page_content[:500].replace("\n", " ")
             print(f"{i}. {snippet}...\n{'-'*40}")
-            code_output.append({"rank": i, "content": match.page_content, "metadata": getattr(match, "metadata", {})})
+            code_output.append({
+                "rank": i,
+                "content": match.page_content,
+                "metadata": getattr(match, "metadata", {})
+            })
 
         # --- Print Top PR Comments ---
         print("\nTop PR Comments:")
@@ -112,12 +119,18 @@ for file in pr.get_files():
             text = comment.page_content if hasattr(comment, "page_content") else str(comment)
             snippet = text[:300].replace("\n", " ")
             print(f"{i}. {source_file}: {snippet}...\n{'-'*40}")
-            comments_output.append({"rank": i, "content": text, "metadata": meta})
+            comments_output.append({
+                "rank": i,
+                "content": text,
+                "metadata": meta
+            })
 
         # Add to file output
         file_output["nodes"].append({
             "node_name": node_name,
-            "added_lines": lines,
+            "start_line": start_line,
+            "end_line": end_line,
+            "added_lines": [f"+{ln}: {code}" for ln, code in lines],
             "top_code_matches": code_output,
             "top_pr_comments": comments_output
         })
