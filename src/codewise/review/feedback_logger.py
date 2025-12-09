@@ -65,3 +65,31 @@ class FeedbackLogger:
         for f in self.feedback:
             if f["pr_number"] == pr_number and f["node"] == node_name:
                 f["accepted"] = accepted
+
+    def compute_adaptation_params(self, pr_number=None):
+        """
+        Computes adaptation parameters like verbosity and tone based on past feedback.
+        If pr_number is None, uses all feedback.
+        """
+        relevant_feedback = self.feedback
+        if pr_number:
+            relevant_feedback = [f for f in self.feedback if f["pr_number"] == pr_number]
+
+        if not relevant_feedback:
+            return {"verbosity": "medium", "tone": "neutral"}
+
+        total = len(relevant_feedback)
+        accepted_count = sum(1 for f in relevant_feedback if f["accepted"] is True)
+        acceptance_rate = accepted_count / total if total else 0.5
+
+        if acceptance_rate < 0.5:
+            verbosity = "short"
+            tone = "concise"
+        elif acceptance_rate > 0.8:
+            verbosity = "long"
+            tone = "detailed"
+        else:
+            verbosity = "medium"
+            tone = "neutral"
+
+        return {"verbosity": verbosity, "tone": tone}    
