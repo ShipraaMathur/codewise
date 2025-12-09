@@ -8,7 +8,7 @@ from langchain_openai import OpenAIEmbeddings
 import sys
 
 sys.path.append(os.path.abspath("."))  # Add project root to path
-from codewise.src.github_test import parse_patch, find_enclosing_node
+from codewise.github_test import parse_patch, find_enclosing_node
 
 # -------------------------------
 # Config

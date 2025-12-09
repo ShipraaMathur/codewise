@@ -12,8 +12,9 @@ load_dotenv()
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from github import Github, Auth
-from src.core.static_analyzer import analyze_file_changes
-from src.review.llm_reviewer import get_review_for_code
+from codewise.core.static_analyzer import analyze_file_changes
+from codewise.review.llm_reviewer import get_review_for_code
+from codewise.retriever.retriever_client import get_retrieval_context
 
 def parse_pr_url(pr_url: str) -> tuple[str, int]:
     """Parses a GitHub PR URL to get the repo name and PR number."""
@@ -63,7 +64,9 @@ def main():
             file_review = {"filename": file.filename, "reviews": []}
 
             for node_name, source_code in affected_nodes.items():
-                review = get_review_for_code(source_code, temperature=args.temperature) # This was already correct, but depends on the change below
+                retrieval_context = get_retrieval_context(source_code)
+
+                review = get_review_for_code(source_code, retrieved_context=retrieval_context, temperature=args.temperature) # This was already correct, but depends on the change below
                 if review:
                     file_review["reviews"].append({"node": node_name, "review": review})
             

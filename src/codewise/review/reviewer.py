@@ -1,11 +1,11 @@
 # src/codewise/review/reviewer.py
 
 from langchain import LLMChain, PromptTemplate
-from langchain.chat_models import ChatOpenAI  # Or any LLM you are using
+from langchain_openai import ChatOpenAI  # Or any LLM you are using
 from typing import List
 
 # Optional: set temperature, max tokens, etc.
-llm = ChatOpenAI(model_name="gpt-4-turbo", temperature=0.7)
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
 
 # Prompt template for RAG review
 PROMPT_TEMPLATE = """

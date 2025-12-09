@@ -21,6 +21,11 @@ Here is the code snippet to review:
 {source_code}
 ---
 
+Relevant Project Context (retrieved from vectorstore):
+---
+{retrieved_context}
+---
+
 {format_instructions}
 """
 
@@ -33,7 +38,7 @@ class ReviewComment(BaseModel):
 class Review(BaseModel):
     review_comments: list[ReviewComment] = Field(description="A list of review comments.", min_length=1)
 
-def get_review_for_code(source_code: str, temperature: float = 0.2) -> dict | None:
+def get_review_for_code(source_code: str, retrieved_context: str = "", temperature: float = 0.2) -> dict | None:
     """
     Generates AI-powered code review for a given source code snippet.
 
@@ -50,7 +55,7 @@ def get_review_for_code(source_code: str, temperature: float = 0.2) -> dict | No
 
         prompt = PromptTemplate(
             template=PROMPT_TEMPLATE,
-            input_variables=["source_code"],
+            input_variables=["source_code","retrieved_context"],
             partial_variables={"format_instructions": parser.get_format_instructions()},
         )
 
@@ -58,11 +63,9 @@ def get_review_for_code(source_code: str, temperature: float = 0.2) -> dict | No
 
         chain = prompt | model | parser
         
-        return chain.invoke({"source_code": source_code})
+        return chain.invoke({"source_code": source_code, "retrieved_context": retrieved_context})
     except Exception as e:
         # If the LLM says there are no issues, it might return a non-JSON response.
         # Or if another error occurs.
         print(f"  [INFO] Could not generate or parse review. This might mean no issues were found. Error: {e}")
         return None
-    except Exception as e:
-        return {"error": f"Failed to get or parse review: {e}"}
