@@ -7,8 +7,17 @@ from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 import sys
 
-sys.path.append(os.path.abspath("."))  # Add project root to path
-from codewise.github_test import parse_patch, find_enclosing_node
+# Ensure the repository root (three levels up) is on sys.path so imports like
+# `from codewise.github_test import ...` resolve regardless of CWD.
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")))
+# First try the package import (when running from repo root)
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+try:
+    from codewise.github_test import parse_patch, find_enclosing_node
+except ModuleNotFoundError:
+    # Fallback: try direct module import when github_test.py lives at repo root
+    from github_test import parse_patch, find_enclosing_node
+    
 
 # -------------------------------
 # Config
@@ -18,7 +27,7 @@ token = os.getenv("GITHUB_TOKEN")
 if not token:
     raise ValueError("Missing GITHUB_TOKEN in .env!")
 
-PR_NUMBER = 5121  # Example PR number
+PR_NUMBER = 5853  # Example PR number
 TOP_K = 5         # Number of top matches to retrieve
 OUTPUT_JSON = "pr_retrieval_output.json"
 

@@ -5,6 +5,7 @@ from typing import List, Dict, Any
 from .schema import PRData, CommentDict
 
 LOG_PATH = os.path.join(os.getcwd(), "src", "logs", "feedback.json")
+GROUND_TRUTH_PATH = os.path.join(os.path.dirname(__file__), "ground_truth.json")
 
 def load_ai_comments() -> Dict[int, List[CommentDict]]:
     """Return mapping pr_number -> list[normalized comment dicts]."""
@@ -32,7 +33,6 @@ def load_ai_comments() -> Dict[int, List[CommentDict]]:
         out.setdefault(pr, []).extend(comments)
     return out
 
-# Optional: fetch human comments from GitHub using your client.
 def fetch_human_comments_from_github(github_client, owner_repo:str, pr_number:int) -> List[CommentDict]:
     """
     github_client must expose get_pr_comments(owner_repo, pr_number) -> list of pygithub Comment objects or dicts
@@ -46,6 +46,27 @@ def fetch_human_comments_from_github(github_client, owner_repo:str, pr_number:in
         body = r.get("body") or getattr(r, "body", "")
         comments.append({"path": path, "line": int(line) if line is not None else -1, "body": body.strip(), "severity": "Human"})
     return comments
+
+def load_ground_truth_from_file(pr_number: int) -> List[CommentDict]:
+    """Load mock ground-truth comments from local JSON file as fallback when GitHub has no comments."""
+    if not os.path.exists(GROUND_TRUTH_PATH):
+        return []
+    try:
+        with open(GROUND_TRUTH_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        pr_comments = data.get(str(pr_number), [])
+        comments = []
+        for c in pr_comments:
+            comments.append({
+                "path": c.get("path", ""),
+                "line": int(c.get("line", -1)),
+                "body": c.get("body", "").strip(),
+                "severity": c.get("severity", "Unknown")
+            })
+        return comments
+    except Exception as e:
+        print(f"Warning: failed to load ground-truth from {GROUND_TRUTH_PATH}: {e}")
+        return []
 
 def build_prdata(pr_number:int, github_client=None, owner_repo: str = "pallets/flask") -> PRData:
     """Construct PRData for a single PR number."""
@@ -61,10 +82,14 @@ def build_prdata(pr_number:int, github_client=None, owner_repo: str = "pallets/f
             patches.append(f.get("patch") or "")
         diff_text = "\n".join(patches)
 
-    # If no github_client, caller can fill ground_truth_comments manually
+    # Try to fetch human comments from GitHub first
     human_comments = []
     if github_client is not None:
         human_comments = fetch_human_comments_from_github(github_client, owner_repo, pr_number)
+    
+    # Fallback to local ground-truth file if GitHub returns no comments
+    if not human_comments:
+        human_comments = load_ground_truth_from_file(pr_number)
 
     return PRData(
         pr_id=pr_number,

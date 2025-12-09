@@ -36,11 +36,38 @@ def extract_functions(source_code):
 # ---------- MAIN SCRIPT ----------
 
 def main():
-    repo_root = "data/flask/src/flask"  # path to the main Python package
+    # Try to auto-discover the Flask package directory inside the repository.
+    # Common layout: <repo>/data/flask/src/flask
+    from pathlib import Path
+    script_dir = Path(__file__).resolve().parent
+    repo_root = None
+
+    # Walk up a few levels and search for the expected path or for a flask package
+    for p in [script_dir, *script_dir.parents[:6]]:
+        candidate = p / "data" / "flask" / "src" / "flask"
+        if candidate.exists():
+            repo_root = str(candidate)
+            break
+
+    # Fallback: look for any 'flask/__init__.py' under these parents
+    if repo_root is None:
+        for p in [script_dir, *script_dir.parents[:6]]:
+            matches = list(p.rglob("flask/__init__.py"))
+            # prefer matches that are not under site-packages
+            for m in matches:
+                if "site-packages" not in str(m):
+                    repo_root = str(m.parent)
+                    break
+            if repo_root:
+                break
+
+    if repo_root is None:
+        # Last resort: use a relative default and let the later check fail clearly
+        repo_root = "data/flask/src/flask"
     vectorstore_output = "vectorstores/flask_store"
     os.makedirs(vectorstore_output, exist_ok=True)
 
-    print("Scanning Python files...")
+    print("Scanning Python files in:", repo_root)
     documents = []
 
     for path in glob.glob(f"{repo_root}/**/*.py", recursive=True):
@@ -64,6 +91,11 @@ def main():
             })
 
     print(f"Total documents/chunks to embed: {len(documents)}")
+    if len(documents) == 0:
+        raise SystemExit(
+            f"No Python files found under {repo_root}.\n"
+            "Please set `repo_root` to the correct package path or place the repository at the expected layout."
+        )
 
     # ---------- CREATE EMBEDDINGS ----------
     print("Creating embeddings using OpenAIEmbeddings...")

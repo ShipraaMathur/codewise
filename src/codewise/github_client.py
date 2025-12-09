@@ -28,16 +28,33 @@ class GitHubClient:
         """
         Return a list of dicts with comments on the PR, matching what loaders.py expects.
         Each dict contains: 'body', 'path', 'position', 'user'.
+        Only returns code review comments (with file path and line), not issue discussion comments.
         """
+        repo = self.client.get_repo(repo_name)
         pr = self.get_pr(repo_name, pr_number)
         comments = []
+
+        # 1) PR-level review bodies (top-level reviews)
+        for review in pr.get_reviews():
+            if review.body:
+                comments.append({
+                    "body": review.body,
+                    "path": "",
+                    "line": -1,
+                    "user": review.user.login
+                })
+
+        # 2) Line-specific review comments (code review comments)
         for c in pr.get_review_comments():
             comments.append({
                 "body": c.body,
-                "path": c.path,
-                "position": c.position,
+                "path": c.path or "",
+                "line": c.position if hasattr(c, 'position') else -1,
                 "user": c.user.login
             })
+
+        # Note: Skip issue comments (those without file paths) as they are meta-discussion, not code reviews
+
         return comments
 
     def get_diff(self, pr):

@@ -35,7 +35,8 @@ def main():
     print("Saved to src/codewise/evaluation/evaluation_results/")
     # also print per-pr summary
     for pr in result["per_pr"]:
-        print(f"PR {pr['pr_id']}: precision={pr['metrics']['precision']:.2f} recall={pr['metrics']['recall']:.2f} f1={pr['metrics']['f1']:.2f}")
+        m = pr['metrics']
+        print(f"PR {pr['pr_id']}: rouge_l_avg={m.get('rouge_l_avg', 0.0):.4f} rouge_l_max={m.get('rouge_l_max', 0.0):.4f} rouge_l_min={m.get('rouge_l_min', 0.0):.4f}")
 
 if __name__ == "__main__":
     main()
