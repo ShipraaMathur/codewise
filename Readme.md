@@ -60,8 +60,15 @@ python .\src\codewise\review\generate_review.py --pr-url https://github.com/pall
 
 ```
 Test Adjust future review tone/verbosity based on feedback
-
+ 
 ```
 python src/codewise/review/test_adaptation.py
+
+```
+
+To get evaluation
+
+```
+python -m src.codewise.evaluation.run_eval --prs 5121 --owner-repo pallets/flask
 
 ```
