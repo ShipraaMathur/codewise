@@ -1,0 +1,17 @@
+[
+  {
+    "pr_id": 5121,
+    "metrics": {
+      "tp": 0,
+      "fp": 8,
+      "fn": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "ai_total": 8,
+      "human_total": 0
+    },
+    "ai_count": 8,
+    "human_count": 0
+  }
+]
