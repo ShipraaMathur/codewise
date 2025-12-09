@@ -51,6 +51,7 @@ def main():
     repo = g.get_repo(repo_name)
     pr = repo.get_pull(pr_number)
     feedback_logger = FeedbackLogger()
+    adaptation_params = feedback_logger.compute_adaptation_params(pr_number)
 
     # --- Review Generation ---
     full_review = {"pr_title": pr.title, "files": []}
@@ -69,7 +70,7 @@ def main():
             for node_name, source_code in affected_nodes.items():
                 retrieval_context = get_retrieval_context(source_code)
 
-                review = get_review_for_code(source_code, retrieved_context=retrieval_context, temperature=args.temperature) # This was already correct, but depends on the change below
+                review = get_review_for_code(source_code, retrieved_context=retrieval_context, temperature=args.temperature,adaptation_params=adaptation_params) # This was already correct, but depends on the change below
                 if review:
                     if isinstance(review, dict):
                         review_str = json.dumps(review)
