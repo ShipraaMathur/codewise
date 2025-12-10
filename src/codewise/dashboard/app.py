@@ -120,18 +120,13 @@ if os.path.exists(pipeline_script):
         return rc
 
 
+    # Use the consolidated shell pipeline script instead of running individual steps
     steps = []
     cwd = os.getcwd()
-    # step 1: github_test.py (optional)
-    github_test = os.path.join(cwd, 'github_test.py')
-    if os.path.exists(github_test):
-        steps.append(( [sys.executable, github_test, '--pr', str(pr_number)], 1, 30, 'Running github_test.py' ))
-    # step 2: retrieval pipeline
-    retrieval = os.path.join(cwd, 'src', 'codewise', 'scripts', 'retrieval_pipeline.py')
-    if os.path.exists(retrieval):
-        steps.append(( [sys.executable, retrieval, '--pr', str(pr_number)], 31, 70, 'Running retrieval_pipeline.py' ))
-    # step 3: evaluation
-    steps.append(( [sys.executable, '-m', 'src.codewise.evaluation.run_eval', '--prs', str(pr_number)], 71, 100, 'Running evaluation.run_eval' ))
+    pipeline_sh = os.path.join(cwd, 'run_pipeline.sh')
+    if os.path.exists(pipeline_sh):
+        # run via bash to ensure the script executes regardless of executable bit
+        steps.append(( ['/bin/bash', pipeline_sh, str(pr_number)], 1, 100, 'Running pipeline script (run_pipeline.sh)'))
 
     if steps:
         st.subheader('Running pipeline')
