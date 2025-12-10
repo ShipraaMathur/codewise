@@ -1,0 +1,34 @@
+{
+    "5821": [
+        {
+            "path": null,
+            "line": null,
+            "body": "LGTM, follows other areas of the source in style, thanks for adding the type hints!",
+            "severity": "Low"
+        },
+        {
+            "path": null,
+            "line": null,
+            "body": "Thanks!! I'll do it ",
+            "severity": "Low"
+        },
+        {
+            "path": null,
+            "line": null,
+            "body": "@davidism This PR got closed but I don't see it merged back into main.  I'm still learning so was just wondering what that means.  The code changes have been deemed unnecessary or they will be merged back into main at som point?",
+            "severity": "Low"
+        },
+        {
+            "path": null,
+            "line": null,
+            "body": "IMHO the changes are not particularly useful and just make otherwise simple examples harder to understand, especially for beginners. Having type hints on view functions in an application do not add any rael benefit, unlike type hints on library code, utils, etc.",
+            "severity": "Low"
+        },
+        {
+            "path": null,
+            "line": null,
+            "body": "Well said, an opinion hahaha",
+            "severity": "Low"
+        }
+    ]
+}

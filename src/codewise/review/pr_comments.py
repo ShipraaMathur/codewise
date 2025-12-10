@@ -52,7 +52,7 @@ def save_human_comments_to_json(pr, output_dir="output"):
         os.makedirs(output_dir)
 
     human_json, count = extract_all_human_comments(pr)
-    file_path = os.path.join(output_dir, f"human_comments_{pr.number}.json")
+    file_path = os.path.join(output_dir, f"ground_truth.json")
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(human_json, f, indent=4)
 
