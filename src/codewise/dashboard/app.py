@@ -40,11 +40,28 @@ except FileNotFoundError:
 st.title("CodeWise PR Dashboard")
 st.subheader("Pull Request Summary")
 
-if ai_feedback:
-    pr_number = ai_feedback[0]['pr_number']
-    st.write(f"**PR Number:** {pr_number}")
-    pr_title = rag_data.get("pr_title", "Unknown")
-    st.write(f"**PR Title:** {pr_title}")
+# On-page PR input (empty by default)
+st.markdown("### Load PR")
+pr_input = st.text_input("Enter PR number")
+load_pr = st.button("Load PR")
+
+# If no PR entered yet, keep page empty until user loads a PR
+if not pr_input or not load_pr:
+    st.stop()
+
+# Parse PR number after user submits
+try:
+    pr_number = int(pr_input)
+except ValueError:
+    st.error("PR number must be an integer")
+    st.stop()
+
+st.write(f"**PR Number:** {pr_number}")
+pr_title = rag_data.get("pr_title", "Unknown")
+st.write(f"**PR Title:** {pr_title}")
+
+# Filter AI feedback to the selected PR
+filtered_ai = [entry for entry in ai_feedback if entry.get('pr_number') == int(pr_number)]
 
 # -------------------------------
 # Evaluation Metrics
