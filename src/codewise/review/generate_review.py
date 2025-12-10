@@ -16,6 +16,7 @@ from codewise.core.static_analyzer import analyze_file_changes
 from codewise.review.llm_reviewer import get_review_for_code
 from codewise.retriever.retriever_client import get_retrieval_context
 from codewise.review.feedback_logger import FeedbackLogger
+from codewise.review.pr_comments import save_human_comments_to_json
 
 
 def parse_pr_url(pr_url: str) -> tuple[str, int]:
@@ -55,6 +56,8 @@ def main():
 
     # --- Review Generation ---
     full_review = {"pr_title": pr.title, "files": []}
+
+    save_human_comments_to_json(pr)
 
     for file in pr.get_files():
         if not file.filename.endswith(".py"):
