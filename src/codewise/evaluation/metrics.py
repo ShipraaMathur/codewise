@@ -77,16 +77,37 @@ def compute_pr_metrics(ai_comments: List[CommentDict], human_comments: List[Comm
     Compute ROUGE-L scores for RAG evaluation.
     For each AI comment, calculates max ROUGE-L F-score against all human comments.
     Returns average ROUGE score across all AI comments.
-    """
-    if not ai_comments or not human_comments:
-        return {
-            "rouge_l_avg": 0.0,
-            "rouge_l_max": 0.0,
-            "rouge_l_min": 0.0,
-            "ai_total": len(ai_comments),
-            "human_total": len(human_comments)
-        }
     
+    If human_comments is empty, returns "no_ground_truth" flag (instead of zeros) so the dashboard
+    can show "Ground truth not available" rather than misleading 0% scores.
+    """
+    result = {
+        "ai_total": len(ai_comments),
+        "human_total": len(human_comments)
+    }
+    
+    # If no AI comments or no human comments, mark as no ground-truth available
+    if not ai_comments:
+        result.update({
+            "rouge_l_avg": None,
+            "rouge_l_max": None,
+            "rouge_l_min": None,
+            "no_ground_truth": True,
+            "reason": "No AI comments generated"
+        })
+        return result
+    
+    if not human_comments:
+        result.update({
+            "rouge_l_avg": None,
+            "rouge_l_max": None,
+            "rouge_l_min": None,
+            "no_ground_truth": True,
+            "reason": "No human ground-truth comments available (not found on GitHub or in ground_truth.json)"
+        })
+        return result
+    
+    # Both AI and human comments are present; compute ROUGE scores
     rouge_scores = []
     for ai in ai_comments:
         max_score = semantic_overlap(ai["body"], human_comments[0]["body"]) if human_comments else 0.0
@@ -99,10 +120,10 @@ def compute_pr_metrics(ai_comments: List[CommentDict], human_comments: List[Comm
     max_score = max(rouge_scores) if rouge_scores else 0.0
     min_score = min(rouge_scores) if rouge_scores else 0.0
 
-    return {
+    result.update({
         "rouge_l_avg": avg_score,
         "rouge_l_max": max_score,
         "rouge_l_min": min_score,
-        "ai_total": len(ai_comments),
-        "human_total": len(human_comments)
-    }
+        "no_ground_truth": False
+    })
+    return result

@@ -30,7 +30,25 @@ print("Connected to:", repo.full_name)
 
 # --- Main Logic ---
 # For development, we target a single, known PR.
-pr_number = 5853  # An example PR from Flask with Python file changes.
+import os
+import argparse
+
+# Allow PR number to be provided via env var or CLI argument
+def get_pr_number():
+    pr_from_env = os.environ.get("PR_NUMBER")
+    if pr_from_env:
+        try:
+            return int(pr_from_env)
+        except ValueError:
+            pass
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--pr", type=int, help="PR number to test")
+    args, _ = parser.parse_known_args()
+    if args.pr:
+        return int(args.pr)
+    return 5853  # default example PR
+
+pr_number = get_pr_number()
 pr = repo.get_pull(pr_number)
 
 print(f"\nProcessing PR #{pr.number}: {pr.title}")
