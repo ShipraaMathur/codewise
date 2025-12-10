@@ -38,14 +38,23 @@ def evaluate_many(pr_list: List[int], github_client=None, owner_repo="pallets/fl
         r = evaluate_pr(pr, github_client=github_client, owner_repo=owner_repo)
         per_pr.append(r)
         m = r["metrics"]
-        rouge_scores.append(m.get("rouge_l_avg", 0.0))
+        # Only include ROUGE scores from PRs that have ground truth available
+        if not m.get("no_ground_truth"):
+            avg = m.get("rouge_l_avg")
+            if avg is not None:
+                rouge_scores.append(avg)
     
-    avg_rouge = sum(rouge_scores) / len(rouge_scores) if rouge_scores else 0.0
-    max_rouge = max(rouge_scores) if rouge_scores else 0.0
-    min_rouge = min(rouge_scores) if rouge_scores else 0.0
+    avg_rouge = sum(rouge_scores) / len(rouge_scores) if rouge_scores else None
+    max_rouge = max(rouge_scores) if rouge_scores else None
+    min_rouge = min(rouge_scores) if rouge_scores else None
 
     summary = {
-        "overall": {"rouge_l_avg": avg_rouge, "rouge_l_max": max_rouge, "rouge_l_min": min_rouge},
+        "overall": {
+            "rouge_l_avg": avg_rouge,
+            "rouge_l_max": max_rouge,
+            "rouge_l_min": min_rouge,
+            "note": "Scores are None if no PR has ground-truth comments available"
+        },
         "per_pr": per_pr
     }
 

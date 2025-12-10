@@ -1,5 +1,6 @@
 {
-  "rouge_l_avg": 0.5069841269841271,
-  "rouge_l_max": 0.5069841269841271,
-  "rouge_l_min": 0.5069841269841271
+  "rouge_l_avg": null,
+  "rouge_l_max": null,
+  "rouge_l_min": null,
+  "note": "Scores are None if no PR has ground-truth comments available"
 }

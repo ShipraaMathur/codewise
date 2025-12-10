@@ -27,7 +27,27 @@ token = os.getenv("GITHUB_TOKEN")
 if not token:
     raise ValueError("Missing GITHUB_TOKEN in .env!")
 
-PR_NUMBER = 5853  # Example PR number
+import os
+import argparse
+
+# Allow PR number to be provided via env var or CLI; fallback to 5853 for backward-compatibility
+def get_pr_number():
+    pr_from_env = os.environ.get("PR_NUMBER")
+    if pr_from_env:
+        try:
+            return int(pr_from_env)
+        except ValueError:
+            pass
+    # CLI arg support
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--pr", type=int, help="PR number")
+    args, _ = parser.parse_known_args()
+    if args.pr:
+        return int(args.pr)
+    # default example
+    return 5853
+
+PR_NUMBER = get_pr_number()
 TOP_K = 5         # Number of top matches to retrieve
 OUTPUT_JSON = "pr_retrieval_output.json"
 

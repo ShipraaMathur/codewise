@@ -2,13 +2,15 @@
   {
     "pr_id": 5853,
     "metrics": {
-      "rouge_l_avg": 0.5069841269841271,
-      "rouge_l_max": 0.8571428571428571,
-      "rouge_l_min": 0.1,
-      "ai_total": 5,
-      "human_total": 3
+      "ai_total": 0,
+      "human_total": 3,
+      "rouge_l_avg": null,
+      "rouge_l_max": null,
+      "rouge_l_min": null,
+      "no_ground_truth": true,
+      "reason": "No AI comments generated"
     },
-    "ai_count": 5,
+    "ai_count": 0,
     "human_count": 3
   }
 ]
