@@ -1,8 +1,6 @@
 {
-  "precision": 0.0,
-  "recall": 0.0,
-  "f1": 0.0,
-  "tp": 0,
-  "fp": 8,
-  "fn": 0
+  "rouge_l_avg": 0.028148148148148148,
+  "rouge_l_max": 0.028148148148148148,
+  "rouge_l_min": 0.028148148148148148,
+  "note": "Scores are None if no PR has ground-truth comments available"
 }

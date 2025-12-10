@@ -33,18 +33,28 @@ def evaluate_pr(pr_number: int, github_client=None, owner_repo="pallets/flask") 
 def evaluate_many(pr_list: List[int], github_client=None, owner_repo="pallets/flask") -> dict:
     ensure_results_dir()
     per_pr = []
-    agg_tp = agg_fp = agg_fn = 0
+    rouge_scores = []
     for pr in pr_list:
         r = evaluate_pr(pr, github_client=github_client, owner_repo=owner_repo)
         per_pr.append(r)
         m = r["metrics"]
-        agg_tp += m["tp"]; agg_fp += m["fp"]; agg_fn += m["fn"]
-    precision = agg_tp / (agg_tp + agg_fp) if (agg_tp + agg_fp) > 0 else 0.0
-    recall = agg_tp / (agg_tp + agg_fn) if (agg_tp + agg_fn) > 0 else 0.0
-    f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
+        # Only include ROUGE scores from PRs that have ground truth available
+        if not m.get("no_ground_truth"):
+            avg = m.get("rouge_l_avg")
+            if avg is not None:
+                rouge_scores.append(avg)
+    
+    avg_rouge = sum(rouge_scores) / len(rouge_scores) if rouge_scores else None
+    max_rouge = max(rouge_scores) if rouge_scores else None
+    min_rouge = min(rouge_scores) if rouge_scores else None
 
     summary = {
-        "overall": {"precision": precision, "recall": recall, "f1": f1, "tp": agg_tp, "fp": agg_fp, "fn": agg_fn},
+        "overall": {
+            "rouge_l_avg": avg_rouge,
+            "rouge_l_max": max_rouge,
+            "rouge_l_min": min_rouge,
+            "note": "Scores are None if no PR has ground-truth comments available"
+        },
         "per_pr": per_pr
     }
 

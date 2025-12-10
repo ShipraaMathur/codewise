@@ -7,8 +7,17 @@ from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
 import sys
 
-sys.path.append(os.path.abspath("."))  # Add project root to path
-from codewise.github_test import parse_patch, find_enclosing_node
+# Ensure the repository root (three levels up) is on sys.path so imports like
+# `from codewise.github_test import ...` resolve regardless of CWD.
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")))
+# First try the package import (when running from repo root)
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+try:
+    from codewise.github_test import parse_patch, find_enclosing_node
+except ModuleNotFoundError:
+    # Fallback: try direct module import when github_test.py lives at repo root
+    from github_test import parse_patch, find_enclosing_node
+    
 
 # -------------------------------
 # Config
@@ -18,7 +27,27 @@ token = os.getenv("GITHUB_TOKEN")
 if not token:
     raise ValueError("Missing GITHUB_TOKEN in .env!")
 
-PR_NUMBER = 5121  # Example PR number
+import os
+import argparse
+
+# Allow PR number to be provided via env var or CLI; fallback to 5853 for backward-compatibility
+def get_pr_number():
+    pr_from_env = os.environ.get("PR_NUMBER")
+    if pr_from_env:
+        try:
+            return int(pr_from_env)
+        except ValueError:
+            pass
+    # CLI arg support
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--pr", type=int, help="PR number")
+    args, _ = parser.parse_known_args()
+    if args.pr:
+        return int(args.pr)
+    # default example
+    return 5853
+
+PR_NUMBER = get_pr_number()
 TOP_K = 5         # Number of top matches to retrieve
 OUTPUT_JSON = "pr_retrieval_output.json"
 
@@ -86,12 +115,15 @@ for file in pr.get_files():
     for line_num, line_content in added_lines:
         node_name = find_enclosing_node(tree, line_num)
         if node_name:
-            affected_nodes.setdefault(node_name, []).append(f"+{line_num}: {line_content}")
+            affected_nodes.setdefault(node_name, []).append((line_num, line_content))
 
     # Retrieve context for each affected node
     for node_name, lines in affected_nodes.items():
-        modified_code = "\n".join(line.split(": ", 1)[1] for line in lines)
-        print(f"\n=== Node: {node_name} in {file.filename} ===\n")
+        # Keep line numbers with the code for evaluation
+        start_line = lines[0][0]
+        end_line = lines[-1][0]
+        modified_code = "\n".join(code for _, code in lines)
+        print(f"\n=== Node: {node_name} in {file.filename} (lines {start_line}-{end_line}) ===\n")
 
         code_matches, pr_comments = retrieve_context(modified_code, top_k=TOP_K)
 
@@ -101,7 +133,11 @@ for file in pr.get_files():
         for i, match in enumerate(code_matches, 1):
             snippet = match.page_content[:500].replace("\n", " ")
             print(f"{i}. {snippet}...\n{'-'*40}")
-            code_output.append({"rank": i, "content": match.page_content, "metadata": getattr(match, "metadata", {})})
+            code_output.append({
+                "rank": i,
+                "content": match.page_content,
+                "metadata": getattr(match, "metadata", {})
+            })
 
         # --- Print Top PR Comments ---
         print("\nTop PR Comments:")
@@ -112,12 +148,18 @@ for file in pr.get_files():
             text = comment.page_content if hasattr(comment, "page_content") else str(comment)
             snippet = text[:300].replace("\n", " ")
             print(f"{i}. {source_file}: {snippet}...\n{'-'*40}")
-            comments_output.append({"rank": i, "content": text, "metadata": meta})
+            comments_output.append({
+                "rank": i,
+                "content": text,
+                "metadata": meta
+            })
 
         # Add to file output
         file_output["nodes"].append({
             "node_name": node_name,
-            "added_lines": lines,
+            "start_line": start_line,
+            "end_line": end_line,
+            "added_lines": [f"+{ln}: {code}" for ln, code in lines],
             "top_code_matches": code_output,
             "top_pr_comments": comments_output
         })

@@ -1,0 +1,34 @@
+{
+    "5853": [
+        {
+            "path": null,
+            "line": null,
+            "body": "there are already extensions like flask-limiter for this...",
+            "severity": "Low"
+        },
+        {
+            "path": null,
+            "line": null,
+            "body": "Looking at the name of your branch: Is this some kind of university/school project where you were asked to make a contribution to a project on GitHub?",
+            "severity": "Low"
+        },
+        {
+            "path": null,
+            "line": null,
+            "body": "> Looking at the name of your branch: Is this some kind of university/school project where you were asked to make a contribution to a project on GitHub?\n\nYes, and we were asked to contribute to a big library but I don't think any of us really know how to or what contributions to make. ",
+            "severity": "Low"
+        },
+        {
+            "path": null,
+            "line": null,
+            "body": "Please convey to your teacher that this is not an acceptable way to promote open source contribution. They need to properly set you up for success, rather than hoping you figure it out. This was not a good use of maintainer time.",
+            "severity": "Low"
+        },
+        {
+            "path": null,
+            "line": null,
+            "body": "> Please convey to your teacher that this is not an acceptable way to promote open source contribution. They need to properly set you up for success, rather than hoping you figure it out. This was not a good use of maintainer time.\n\nYes I will do that, my sincere apologies.",
+            "severity": "Low"
+        }
+    ]
+}

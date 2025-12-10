@@ -1,17 +1,15 @@
 [
   {
-    "pr_id": 5121,
+    "pr_id": 5853,
     "metrics": {
-      "tp": 0,
-      "fp": 8,
-      "fn": 0,
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1": 0.0,
-      "ai_total": 8,
-      "human_total": 0
+      "ai_total": 15,
+      "human_total": 3,
+      "rouge_l_avg": 0.028148148148148148,
+      "rouge_l_max": 0.1111111111111111,
+      "rouge_l_min": 0.0,
+      "no_ground_truth": false
     },
-    "ai_count": 8,
-    "human_count": 0
+    "ai_count": 15,
+    "human_count": 3
   }
 ]
